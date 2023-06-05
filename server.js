@@ -1,7 +1,17 @@
+const app = require("./app.js");
+
 const http = require("http");
 
-const server = http.createServer((req, res) => {
-  res.end("Voilà la réponse du serveur !");
+const port = process.env.PORT || 4000;
+app.set("port", port);
+const server = http.createServer(app);
+server.on("listening", () => {
+  const address = server.address();
+  const bind =
+    typeof address === "string"
+      ? "pipe " + address
+      : "http://localhost:" + port;
+  console.log("listening on " + bind);
 });
 
-server.listen(process.env.PORT || 4000);
+server.listen(port);
