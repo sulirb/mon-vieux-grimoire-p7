@@ -1,4 +1,4 @@
-const Book = require("../../models/Book.js");
+const Book = require("../../../models/Book.js");
 const express = require("express");
 
 let route = express.Router({ mergeParams: true });

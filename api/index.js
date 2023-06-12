@@ -3,6 +3,6 @@ const express = require("express");
 let route = express.Router({ mergeParams: true });
 
 route.use((req, res) => {
-  res.json("On est sur l'api de book");
+  res.status(404).json("ERREUR 404");
 });
 module.exports = route;

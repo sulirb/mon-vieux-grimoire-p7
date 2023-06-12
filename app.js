@@ -1,4 +1,5 @@
 const express = require("express");
+require("express-async-errors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 
@@ -25,6 +26,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.json());
+app.use(express.urlencoded());
 app.use(morgan("dev", { immediate: true }));
 app.use(morgan("dev"));
 app.use(require("./router/index.js"));

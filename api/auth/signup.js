@@ -1,9 +1,10 @@
-const User = require("../..User.js");
+const User = require("../../models/User.js");
+const express = require("express");
 const bcrypt = require("bcrypt");
 
 let route = express.Router({ mergeParams: true });
 
-route.post("api/auth/signup", (req, res, next) => {
+route.post("/", (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
