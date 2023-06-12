@@ -68,3 +68,5 @@ route.delete("/api/books/:id", (req, res, next) => {
       res.status(500).json({ error });
     });
 });
+
+module.exports = route;
