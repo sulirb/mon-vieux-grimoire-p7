@@ -15,7 +15,7 @@ route.get("/api/books", (req, res) => {
     });
 });
 
-route.post("api/books", (req, res) => {
+route.post("/api/books", (req, res) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
