@@ -5,7 +5,7 @@ const multer = require("../../middlewares/multer-config.js");
 
 let route = express.Router({ mergeParams: true });
 
-route.get("/", auth, (req, res) => {
+route.get("/", (req, res) => {
   Book.find()
     .then((books) => {
       res.status(200).json(books);
@@ -18,7 +18,7 @@ route.get("/", auth, (req, res) => {
 });
 
 route.post("/", auth, multer, (req, res) => {
-  const bookObject = req.body;
+  const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
@@ -34,7 +34,8 @@ route.post("/", auth, multer, (req, res) => {
     .then(() => {
       res.status(201).json({ message: "Livre enregistré !" });
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error(error);
       res.status(400).json({ message: "Livre non enregistré !" });
     });
 });

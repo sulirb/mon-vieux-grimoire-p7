@@ -1,9 +1,11 @@
 const Book = require("../../../models/Book.js");
 const express = require("express");
+const auth = require("../../middlewares/auth.js");
+const multer = require("../../middlewares/multer-config.js");
 
 let route = express.Router({ mergeParams: true });
 
-route.get("/api/books/:id", (req, res, next) => {
+route.get("/", (req, res, next) => {
   Book.findOne({
     _id: req.params.id,
   })
@@ -17,7 +19,7 @@ route.get("/api/books/:id", (req, res, next) => {
     });
 });
 
-route.put("/api/books/:id", (req, res, next) => {
+route.put("/", auth, multer, (req, res, next) => {
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -46,7 +48,7 @@ route.put("/api/books/:id", (req, res, next) => {
     });
 });
 
-route.delete("/api/books/:id", (req, res, next) => {
+route.delete("/", auth, (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
