@@ -1,7 +1,8 @@
 const Book = require("../../../models/Book.js");
 const express = require("express");
-const auth = require("../../middlewares/auth.js");
-const multer = require("../../middlewares/multer-config.js");
+const auth = require("../../../middlewares/auth.js");
+const multer = require("../../../middlewares/multer-config.js");
+const fs = require("fs");
 
 let route = express.Router({ mergeParams: true });
 
@@ -58,7 +59,7 @@ route.delete("/", auth, (req, res, next) => {
         fs.unlink(`images/${filename}`, () => {
           Book.deleteOne({ _id: req.params.id })
             .then(() => {
-              res.status(200).json({ message: "Objet supprimé !" });
+              res.status(200).json({ message: "Livre supprimé !" });
             })
             .catch((error) => {
               res.status(401).json({ error });
@@ -67,7 +68,7 @@ route.delete("/", auth, (req, res, next) => {
       }
     })
     .catch((error) => {
-      res.status(500).json({ error });
+      res.status(500).json(console.error(error));
     });
 });
 
