@@ -17,6 +17,7 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("./images"));
 app.use(morgan("dev", { immediate: true }));
 app.use(morgan("dev"));
 app.use(require("./router/index.js"));

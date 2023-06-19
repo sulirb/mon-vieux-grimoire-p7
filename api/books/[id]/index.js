@@ -6,18 +6,15 @@ const fs = require("fs");
 
 let route = express.Router({ mergeParams: true });
 
-route.get("/", (req, res, next) => {
-  Book.findOne({
-    _id: req.params.id,
-  })
-    .then((book) => {
-      res.status(200).json(book);
-    })
-    .catch((error) => {
-      res.status(404).json({
-        error,
-      });
+route.get("/", async (req, res, next) => {
+  const book = await Book.findOne({ _id: req.params.id });
+  if (book) {
+    res.status(200).json(book);
+  } else {
+    res.status(404).json({
+      error,
     });
+  }
 });
 
 route.put("/", auth, multer, (req, res, next) => {
