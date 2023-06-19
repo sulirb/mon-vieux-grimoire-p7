@@ -10,18 +10,21 @@ route.get("/", async (req, res) => {
     const books = await Book.find();
     res.status(200).json(books);
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(500).json({ error });
   }
 });
 
 route.post("/", auth, multer, async (req, res) => {
   const bookObject = JSON.parse(req.body.book);
+  console.log(bookObject);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
-    imageUrl: `http://localhost:4000/images/${req.file.filename}`,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`,
   });
 
   try {

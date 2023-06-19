@@ -3,6 +3,7 @@ const cors = require("cors");
 require("express-async-errors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const { errorMiddleware } = require("./middlewares/error.js");
 
 const app = express();
 
@@ -17,8 +18,9 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./images"));
+app.use("/images", express.static("./images"));
 app.use(morgan("dev", { immediate: true }));
 app.use(morgan("dev"));
 app.use(require("./router/index.js"));
+app.use(errorMiddleware);
 module.exports = app;
