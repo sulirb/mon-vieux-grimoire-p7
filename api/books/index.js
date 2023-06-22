@@ -2,6 +2,7 @@ const Book = require("../../models/Book.js");
 const express = require("express");
 const auth = require("../../middlewares/auth.js");
 const multer = require("../../middlewares/multer-config.js");
+const optimizeImage = require("../../middlewares/multer-sharp.js");
 
 let route = express.Router({ mergeParams: true });
 
@@ -14,9 +15,8 @@ route.get("/", async (req, res) => {
   }
 });
 
-route.post("/", auth, multer, async (req, res) => {
+route.post("/", auth, multer, optimizeImage, async (req, res) => {
   const bookObject = JSON.parse(req.body.book);
-  console.log(bookObject);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
