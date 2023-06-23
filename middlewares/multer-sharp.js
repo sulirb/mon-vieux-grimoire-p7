@@ -1,10 +1,11 @@
 const sharp = require("sharp");
 const fs = require("fs");
+const { HttpError } = require("./error");
 
 const optimizeImage = async (req, res, next) => {
   try {
     if (!req.file) {
-      throw new Error("Aucun fichier image téléchargé");
+      throw new HttpError("Aucun fichier image téléchargé");
     }
 
     const tempFilePath = `images/${req.file.filename}_temp`; // Chemin de fichier temporaire pour l'image optimisée
@@ -26,11 +27,9 @@ const optimizeImage = async (req, res, next) => {
   } catch (error) {
     // Gérer les erreurs
     console.error(error);
-    res
-      .status(400)
-      .json({
-        message: "Une erreur s'est produite lors de l'optimisation de l'image",
-      });
+    res.status(400).json({
+      message: "Une erreur s'est produite lors de l'optimisation de l'image",
+    });
   }
 };
 

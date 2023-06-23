@@ -19,15 +19,7 @@ route.get("/", async (req, res, next) => {
 });
 
 route.put("/", auth, multer, optimizeImage, (req, res, next) => {
-  const bookObject = req.file
-    ? {
-        ...JSON.parse(req.body.book),
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${
-          req.file.filename
-        }`,
-      }
-    : { ...req.body };
-
+  const bookObject = object(req);
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
     .then((book) => {
@@ -69,5 +61,16 @@ route.delete("/", auth, (req, res, next) => {
       res.status(500).json(console.error(error));
     });
 });
+
+function object(req) {
+  return req.file
+    ? {
+        ...JSON.parse(req.body.book),
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      }
+    : { ...req.body };
+}
 
 module.exports = route;

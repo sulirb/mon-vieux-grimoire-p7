@@ -16,9 +16,7 @@ route.get("/", async (req, res) => {
 });
 
 route.post("/", auth, multer, optimizeImage, async (req, res) => {
-  const bookObject = JSON.parse(req.body.book);
-  delete bookObject._id;
-  delete bookObject._userId;
+  const bookObject = object(req);
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -35,5 +33,12 @@ route.post("/", auth, multer, optimizeImage, async (req, res) => {
     res.status(400).json({ message: "Livre non enregistré !" });
   }
 });
+
+function object(req) {
+  const bookObject = JSON.parse(req.body.book);
+  delete bookObject._id;
+  delete bookObject._userId;
+  return bookObject;
+}
 
 module.exports = route;
