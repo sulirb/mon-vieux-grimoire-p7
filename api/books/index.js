@@ -3,20 +3,24 @@ const express = require("express");
 const auth = require("../../middlewares/auth.js");
 const multer = require("../../middlewares/multer-config.js");
 const optimizeImage = require("../../middlewares/multer-sharp.js");
+const { bookObjectPost } = require("../../middlewares/bookUtils.js");
+const { HttpError } = require("../../middlewares/error.js");
 
 let route = express.Router({ mergeParams: true });
 
 route.get("/", async (req, res) => {
-  try {
-    const books = await Book.find();
+  const books = await Book.find();
+  if (books) {
     res.status(200).json(books);
-  } catch (error) {
-    res.status(500).json({ error });
+  } else {
+    throw new HttpError(404, {
+      message: "Erreur dans la récuperation des livres",
+    });
   }
 });
 
 route.post("/", auth, multer, optimizeImage, async (req, res) => {
-  const bookObject = object(req);
+  const bookObject = bookObjectPost(req);
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -29,16 +33,8 @@ route.post("/", auth, multer, optimizeImage, async (req, res) => {
     await book.save();
     res.status(201).json({ message: "Livre enregistré !" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Livre non enregistré !" });
+    throw new HttpError(401, { message: "Livre non enregistré !" });
   }
 });
-
-function object(req) {
-  const bookObject = JSON.parse(req.body.book);
-  delete bookObject._id;
-  delete bookObject._userId;
-  return bookObject;
-}
 
 module.exports = route;

@@ -2,8 +2,10 @@ const Book = require("../../../models/Book.js");
 const express = require("express");
 const auth = require("../../../middlewares/auth.js");
 const multer = require("../../../middlewares/multer-config.js");
-const optimizeImage = require("../../../middlewares/multer-sharp.js");
 const fs = require("fs");
+const { HttpError } = require("../../../middlewares/error.js");
+const { bookObjectById } = require("../../../middlewares/bookUtils.js");
+const optimizeImage = require("../../../middlewares/multer-sharp.js");
 
 let route = express.Router({ mergeParams: true });
 
@@ -12,65 +14,44 @@ route.get("/", async (req, res, next) => {
   if (book) {
     res.status(200).json(book);
   } else {
-    res.status(404).json({
-      error,
+    throw new HttpError(404, {
+      message: "Erreur dans la récuperation des livres",
     });
   }
 });
 
-route.put("/", auth, multer, optimizeImage, (req, res, next) => {
-  const bookObject = object(req);
+route.put("/", auth, multer, optimizeImage, async (req, res, next) => {
+  const bookObject = bookObjectById(req);
   delete bookObject._userId;
-  Book.findOne({ _id: req.params.id })
-    .then((book) => {
-      if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Not authorized" });
-      } else {
-        Book.updateOne(
-          { _id: req.params.id },
-          { ...bookObject, _id: req.params.id }
-        )
-          .then(() => res.status(200).json({ message: "Objet modifié!" }))
-          .catch((error) => res.status(401).json({ error }));
-      }
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
-    });
+  const book = await Book.findOne({ _id: req.params.id });
+  if (book.userId != req.auth.userId)
+    throw new HttpError(401, { message: "Not authorized" });
+  try {
+    await Book.updateOne(
+      { _id: req.params.id },
+      { ...bookObject, _id: req.params.id }
+    );
+    res.status(200).json({ message: "Modification réussie" });
+  } catch (error) {
+    console.error(error);
+    throw new HttpError(400, { message: "La modification a échoué" });
+  }
 });
 
-route.delete("/", auth, (req, res, next) => {
-  Book.findOne({ _id: req.params.id })
-    .then((book) => {
-      if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Non autorisé!" });
-      } else {
-        const filename = book.imageUrl.split("/images/")[1];
-        fs.unlink(`images/${filename}`, () => {
-          Book.deleteOne({ _id: req.params.id })
-            .then(() => {
-              res.status(200).json({ message: "Livre supprimé !" });
-            })
-            .catch((error) => {
-              res.status(401).json({ error });
-            });
-        });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json(console.error(error));
-    });
-});
+route.delete("/", auth, async (req, res, next) => {
+  const book = await Book.findOne({ _id: req.params.id });
+  if (book.userId != req.auth.userId)
+    throw new HttpError(401, { message: "Non autorisé!" });
 
-function object(req) {
-  return req.file
-    ? {
-        ...JSON.parse(req.body.book),
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${
-          req.file.filename
-        }`,
-      }
-    : { ...req.body };
-}
+  const filename = book.imageUrl.split("/images/")[1];
+  try {
+    fs.unlinkSync(`images/${filename}`);
+    await Book.deleteOne({ _id: req.params.id });
+    res.status(200).json({ message: "Livre supprimé !" });
+  } catch (error) {
+    console.error(error);
+    throw new HttpError(400, { message: "La suppression a échoué" });
+  }
+});
 
 module.exports = route;

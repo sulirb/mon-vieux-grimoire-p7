@@ -1,6 +1,7 @@
 const User = require("../../models/User.js");
 const express = require("express");
 const bcrypt = require("bcrypt");
+const { HttpError } = require("../../middlewares/error.js");
 
 let route = express.Router({ mergeParams: true });
 
@@ -12,7 +13,7 @@ route.post("/", async (req, res, next) => {
     await user.save();
     res.status(201).json({ message: "Utilisateur créé !" });
   } catch (error) {
-    res.status(500).json({ error });
+    throw new HttpError(500, { error });
   }
 });
 
