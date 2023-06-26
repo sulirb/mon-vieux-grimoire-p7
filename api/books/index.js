@@ -3,7 +3,7 @@ const express = require("express");
 const auth = require("../../middlewares/auth.js");
 const multer = require("../../middlewares/multer-config.js");
 const optimizeImage = require("../../middlewares/multer-sharp.js");
-const { bookObjectPost } = require("../../middlewares/bookUtils.js");
+const { bookObjectPost } = require("../../utils/book.js");
 const { HttpError } = require("../../middlewares/error.js");
 
 let route = express.Router({ mergeParams: true });
@@ -28,6 +28,7 @@ route.post("/", auth, multer, optimizeImage, async (req, res) => {
       req.file.filename
     }`,
   });
+  console.log(req.body);
 
   try {
     await book.save();
