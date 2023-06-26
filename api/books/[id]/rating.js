@@ -7,13 +7,13 @@ let route = express.Router({ mergeParams: true });
 
 route.post("/", auth, async (req, res) => {
   const userId = req.auth.userId;
-  const grade = req.body.grade;
+  const grade = req.body.rating;
 
   try {
     const book = await Book.findOne({ _id: req.params.id });
-    if (!book) throw new HttpError(404, { message: "Livre non trouvé !" });
-
     const userRating = book.ratings.find((rating) => rating.userId === userId);
+
+    if (!book) throw new HttpError(404, { message: "Livre non trouvé !" });
     if (userRating)
       throw new HttpError(404, { message: "Vous avez déjà noté ce livre !" });
 
@@ -24,13 +24,12 @@ route.post("/", auth, async (req, res) => {
       (sum, rating) => sum + rating.grade,
       0
     );
-    book.averageRating = ratingsSum / ratingsCount || 0;
+    book.averageRating = ratingsSum / ratingsCount;
 
     await book.save();
-
-    res.status(201).json({ message: "Note enregistrée !", book });
+    res.json(book);
+    res.status(201).json({ message: "Note enregistrée !" });
   } catch (error) {
-    console.log(error);
     throw new HttpError(500, {
       message: "Une erreur s'est produite lors de l'enregistrement de la note.",
     });
