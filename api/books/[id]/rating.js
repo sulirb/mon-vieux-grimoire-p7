@@ -6,14 +6,14 @@ const { HttpError } = require("../../../middlewares/error.js");
 let route = express.Router({ mergeParams: true });
 
 route.post("/", auth, async (req, res) => {
-  const userId = req.auth.userId;
-  const grade = req.body.rating;
-
   try {
-    const book = await Book.findOne({ _id: req.params.id });
-    const userRating = book.ratings.find((rating) => rating.userId === userId);
+    const userId = req.auth.userId;
+    const grade = req.body.rating;
 
+    const book = await Book.findOne({ _id: req.params.id });
     if (!book) throw new HttpError(404, { message: "Livre non trouvé !" });
+
+    const userRating = book.ratings.find((rating) => rating.userId === userId);
     if (userRating)
       throw new HttpError(404, { message: "Vous avez déjà noté ce livre !" });
 

@@ -9,36 +9,35 @@ const optimizeImage = require("../../../middlewares/multer-sharp.js");
 
 let route = express.Router({ mergeParams: true });
 
-route.get("/", async (req, res, next) => {
+route.get("/", async (req, res) => {
   const book = await Book.findOne({ _id: req.params.id });
-  if (book) {
-    res.status(200).json(book);
-  } else {
+  if (!book)
     throw new HttpError(404, {
       message: "Erreur dans la récuperation des livres",
     });
-  }
+  res.status(200).json(book);
 });
 
-route.put("/", auth, multer, optimizeImage, async (req, res, next) => {
+route.put("/", auth, multer, optimizeImage, async (req, res) => {
   const bookObject = bookObjectById(req);
-  delete bookObject._userId;
+  console.log(bookObject);
+  bookObject.userId = req.auth.userId;
   const book = await Book.findOne({ _id: req.params.id });
-  if (book.userId != req.auth.userId)
+  if (book.userId !== req.auth.userId)
     throw new HttpError(401, { message: "Not authorized" });
 
   await Book.updateOne(
     { _id: req.params.id },
     { ...bookObject, _id: req.params.id }
-  ).catch((error) => {
+  ).catch(() => {
     throw new HttpError(400, { message: "La modification a échoué" });
   });
   res.status(200).json({ message: "Modification réussie" });
 });
 
-route.delete("/", auth, async (req, res, next) => {
+route.delete("/", auth, async (req, res) => {
   const book = await Book.findOne({ _id: req.params.id });
-  if (book.userId != req.auth.userId)
+  if (book.userId !== req.auth.userId)
     throw new HttpError(401, { message: "Non autorisé!" });
 
   const filename = book.imageUrl.split("/images/")[1];
