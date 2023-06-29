@@ -1,7 +1,4 @@
 const multer = require("multer");
-const sharp = require("sharp");
-const fs = require("fs");
-const { HttpError } = require("./error");
 
 const MIME_TYPES = {
   "image/jpg": "jpg",

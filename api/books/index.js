@@ -10,13 +10,12 @@ let route = express.Router({ mergeParams: true });
 
 route.get("/", async (req, res) => {
   const books = await Book.find();
-  if (books) {
-    res.status(200).json(books);
-  } else {
+  if (!books) {
     throw new HttpError(404, {
       message: "Erreur dans la récuperation des livres",
     });
   }
+  res.status(200).json(books);
 });
 
 route.post("/", auth, multer, optimizeImage, async (req, res) => {
@@ -28,14 +27,11 @@ route.post("/", auth, multer, optimizeImage, async (req, res) => {
       req.file.filename
     }`,
   });
-  console.log(req.body);
 
-  try {
-    await book.save();
-    res.status(201).json({ message: "Livre enregistré !" });
-  } catch (error) {
+  await book.save().catch(() => {
     throw new HttpError(401, { message: "Livre non enregistré !" });
-  }
+  });
+  res.status(201).json({ message: "Livre enregistré !" });
 });
 
 module.exports = route;

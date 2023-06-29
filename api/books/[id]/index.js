@@ -20,7 +20,6 @@ route.get("/", async (req, res) => {
 
 route.put("/", auth, multer, optimizeImage, async (req, res) => {
   const bookObject = bookObjectById(req);
-  console.log(bookObject);
   bookObject.userId = req.auth.userId;
   const book = await Book.findOne({ _id: req.params.id });
   if (book.userId !== req.auth.userId)
@@ -41,14 +40,11 @@ route.delete("/", auth, async (req, res) => {
     throw new HttpError(401, { message: "Non autorisé!" });
 
   const filename = book.imageUrl.split("/images/")[1];
-  try {
-    fs.unlinkSync(`images/${filename}`);
-    await Book.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: "Livre supprimé !" });
-  } catch (error) {
-    console.error(error);
+  fs.unlinkSync(`images/${filename}`);
+  await Book.deleteOne({ _id: req.params.id }).catch(() => {
     throw new HttpError(400, { message: "La suppression a échoué" });
-  }
+  });
+  res.status(200).json({ message: "Livre supprimé !" });
 });
 
 module.exports = route;
