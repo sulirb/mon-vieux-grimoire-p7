@@ -11,7 +11,7 @@ route.post("/", async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
     const user = new User({ email, password: hash });
     await user.save();
-    res.status(201).json({ message: "Utilisateur créé !" });
+    res.status(201).json({ message: "Utilisateur créé" });
   } catch (error) {
     throw new HttpError(500, { error });
   }
