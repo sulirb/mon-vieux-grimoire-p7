@@ -7,7 +7,7 @@ const { HttpError } = require("../../middlewares/error.js");
 let route = express.Router({ mergeParams: true });
 const LOGIN_ERROR = "Paire login/mot de passe incorrecte";
 
-route.post("/", async (req, res, next) => {
+route.post("/", async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) throw new HttpError(401, LOGIN_ERROR);

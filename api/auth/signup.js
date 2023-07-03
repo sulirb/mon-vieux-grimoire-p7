@@ -5,7 +5,7 @@ const { HttpError } = require("../../middlewares/error.js");
 
 let route = express.Router({ mergeParams: true });
 
-route.post("/", async (req, res, next) => {
+route.post("/", async (req, res) => {
   try {
     const { email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
